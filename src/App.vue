@@ -1,8 +1,27 @@
 <template>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <div style="text-align:center; display:flex;">
-    <input type="date" v-model="beforeEdit" style="margin-left:30%; margin-right:20%">
-    <i class="fa fa-gear fa-spin" style="font-size:24px; cursor:pointer;"></i>
+
+  <div class="menu-tool">
+    <!-- <i class="fa fa-gear fa-spin" style="font-size:24px; cursor:pointer;"></i> -->
+    <!-- <span style="">Showing Score</span> -->
+
+    <div class="mid" >
+      <label class="rocker" @click="showingScore = !showingScore">
+        <input type="checkbox" unchecked>
+        <span class="switch-left" @click="showingScore = !showingScore">On</span>
+        <span class="switch-right" @click="showingScore = !showingScore">Off</span>
+      </label>
+    </div>
+   
+
+  </div>
+
+    
+  
+  
+
+  <div style="text-align:center; display:flex; margin-bottom:1rem; margin-top:2rem;">
+    <input type="date" v-model="beforeEdit" style="margin-left:5%;">
   </div>
     
   <br>
@@ -19,13 +38,16 @@
   <br>
 
 
-  <div v-if="gameData && !(isFetchingData) && !(hasFailed)">
-    <div style="text-align:center">Shwoing {{showingDate}} result  </div><br>
+  <div v-if="gameData && !(isFetchingData) && !(hasFailed) && showingScore">
+    <div style="text-align:center">Showing {{showingDate}} result  </div><br>
     <div v-for="(game, i) in gameData.games" :key="i" style="text-align:center">
       <img :src="game.hTeam.linkName" alt="" class="teamLogo">
       <strong>{{game.hTeam.triCode}}</strong>&nbsp; &nbsp;
       <small>{{game.hTeam.score}}</small>&nbsp;
+
       &nbsp;<small :style="game.colorOfTheString">{{game.gameStatus}}</small>&nbsp;
+      &nbsp;<small :style="game.colorOfTheString">{{game.mustWatch}}</small>&nbsp;
+
       &nbsp;<small>{{game.vTeam.score}}</small>&nbsp;&nbsp; &nbsp; 
       <img :src="game.vTeam.linkName" alt="" class="teamLogo">
       <strong>{{game.vTeam.triCode}}</strong>&nbsp; 
@@ -34,6 +56,30 @@
       
 
     </div>
+
+    
+  </div>
+
+  <div v-if="gameData && !(isFetchingData) && !(hasFailed) && !showingScore">
+    <div style="text-align:center">Shwoing {{showingDate}} result  </div><br>
+    <div v-for="(game, i) in gameData.games" :key="i" style="text-align:center">
+      <img :src="game.hTeam.linkName" alt="" class="teamLogo">
+      <strong>{{game.hTeam.triCode}}</strong>&nbsp; &nbsp;
+      <!-- <small>{{game.hTeam.score}}</small>&nbsp; -->
+
+      &nbsp;<small :style="game.colorOfTheString">{{game.gameStatus}}</small>&nbsp;
+      &nbsp;<small :style="game.colorOfTheString">{{game.mustWatch}}</small>&nbsp;
+
+      <!-- &nbsp;<small>{{game.vTeam.score}}</small>&nbsp;&nbsp; &nbsp;  -->
+      <img :src="game.vTeam.linkName" alt="" class="teamLogo">
+      <strong>{{game.vTeam.triCode}}</strong>&nbsp; 
+      
+      <hr>
+      
+
+    </div>
+
+    
   </div>
   <div v-if="gameData &&gameData.games.length === 0 && !(isFetchingData)"><br><br><br> No Games</div>
   <div v-if="isFetchingData" style="text-align:center">
@@ -49,10 +95,25 @@
 
 <script>
 
+// import Vue from 'vue'
+// import ToggleButton from 'vue-js-toggle-button'
+ 
+// Vue.use(ToggleButton)
+
+
 export default {
+  // components:{
+  //   ToggleButton,
+  // },
+  
+
   name: 'App',
   data(){
     return{
+      showingScore: false,
+
+
+
       searchDate: undefined,
       isFetchingData: false,
       gameData: undefined,
@@ -61,10 +122,11 @@ export default {
       showingDate: undefined,
 
       weekDay: ('Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'),
+      autoRefresh: false,
 
 
       todaysDate: (new Date()).getMonth()+1 + '-' + (new Date()).getDate() ,
-      yesterdayDate: (new Date(new Date().setDate(new Date().getDate() - 1))).getMonth()+1 + '-' + (new Date(new Date().setDate(new Date().getDate() - 1))).getDate(),
+      yesterdayDate: (new Date(new Date().setDate(new Date().getDate() - 1))).getMonth()+1 + '-' + (new Date(new Date().setDate(new Date().getDate() - 1))).getDate(), 
       twoDaysAgoDate: (new Date(new Date().setDate(new Date().getDate() - 2))).getMonth()+1 + '-' + (new Date(new Date().setDate(new Date().getDate() - 2))).getDate(),
 
       tomorrowsDate: (new Date(new Date().setDate(new Date().getDate() +1))).getMonth()+1 + '-' + (new Date(new Date().setDate(new Date().getDate() +1))).getDate(),
@@ -89,6 +151,7 @@ export default {
   },
   methods:{
     async getScores(selectedDate) {
+      this.autoRefresh = false
 
       switch(selectedDate){
         case 'twoDaysAgo':
@@ -107,6 +170,7 @@ export default {
           break;
 
         case 'yesterday':
+          this.autoRefresh = true;
 
           this.showingDate = this.yesterdayDate
 
@@ -218,34 +282,6 @@ export default {
             gameMinute = this.gameData.games[i].startTimeUTC.split('T')[1] 
             gameMinute = gameMinute.split(':')[1]
 
-            // this.gameData.games[i].startTimeUTC = this.gameData.games[i].startTimeUTC.split('T')[1] 
-            // this.gameData.games[i].startTimeUTC = this.gameData.games[i].startTimeUTC.split('.')[0] 
-
-            // beforeCal = Number(this.gameData.games[i].startTimeEastern.split(':')[0]) - 3;
-            // pureTime =  Number(this.gameData.games[i].startTimeEastern.split(':')[0]) ;
-            // if(pureTime<=3 && pureTime >=0){
-            //   afterCal = beforeCal + 12;
-            //   getAMPMString = 'AM'
-            //   if(beforeCal === 0){
-            //     getAMPMString = 'PM'
-            //     console.log('you called me ')
-            //   }
-            // }else if(beforeCal === 9){
-            //   afterCal = beforeCal
-            //   console.log('jhue')
-            //   getAMPMString = 'AM'
-            // }else{
-            //   afterCal = beforeCal
-            //   getAMPMString =this.gameData.games[i].startTimeEastern.substring(this.gameData.games[i].startTimeEastern.indexOf(" " )+ 1) 
-            //   getAMPMString = getAMPMString.split(' ')[0];
-            // }
-            // editedString = this.gameData.games[i].startTimeEastern;
-            // editedString = editedString.substring(editedString.indexOf(":" )+ 1) 
-            // editedString = editedString.split(' ')[0];
-            // this.gameData.games[i].startTimePST  = String(afterCal) + ':' + editedString + ' '+ getAMPMString + ' PST'
-
-            // this.gameData.games[i].gameStatus = String(afterCal) + ':' + editedString + ' '+ getAMPMString + ' JPN'
-            // this.gameData.games[i].gameStatus = this.gameData.games[i].startTimeUTC + ' JPN'
             this.gameData.games[i].gameStatus = gameHour + ':' +  gameMinute + ' JPN'
             // this.gameData.games[i].gameStatus = gameMinute
 
@@ -279,6 +315,15 @@ export default {
 
           }else{
             // console.log('missed')
+          }
+
+          // call function if it is true or not
+          // this.checkuMustWatch(this.gameData.games[i].hTeam.score, this.gameData.games[i].vTeam.score)
+          if(this.gameData.games[i].period.current === 0){
+            this.gameData.games[i].mustWatch = ''
+          }else{
+            this.gameData.games[i].mustWatch = this.checkuMustWatch(this.gameData.games[i].hTeam.score, this.gameData.games[i].vTeam.score)
+
           }
 
           
@@ -333,13 +378,6 @@ export default {
               break;
           }
 
-
-
-
-           
-
-
-
           i++
         }
 
@@ -355,25 +393,22 @@ export default {
       
     },
     checkUpdate(){
-      let checkDate = undefined
-
-      let now = new Date();
-      let y = now.getFullYear();
-      let m = now.getMonth() + 1;
-      let d = now.getDate();
-      let mm = m < 10 ? '0' + m : m;
-      let dd = d < 10 ? '0' + d : d;
-      checkDate = '' + y + mm + dd;
-
-      if(this.searchDate === checkDate){
-        this.getScores()
-        this.updateCount++;
+      if(this.autoRefresh){
+        this.getScores('yesterday')
         console.log(`Update ${this.updateCount}`)
       }else{
-        console.log('wrong')
+        console.log('no need to update')
       }
 
-    }
+    },
+
+    checkuMustWatch(score1, score2){
+      if((score1 - score2 < 10 && score1 - score2 >  -10)  ){
+        return 'Hot!'
+      }else{
+        return ''
+      }
+    },
   },
 
   created() {
@@ -381,10 +416,12 @@ export default {
   },
 
   mounted(){
-    if(new Date().getHours() >= 17){
-      this.getScores()
-    }else if(new Date().getHours() <= 5){
-      this.getScores('twoDaysAgo')
+    if(new Date().getHours() >= 20){
+      this.getScores('today')
+    }else if(new Date().getHours() <= 4){
+      this.getScores('yesterday')
+    }else{
+      this.getScores('yesterday')
     }
 
 
@@ -426,5 +463,155 @@ export default {
 .select-date button{
   margin-left:3%;
 }
+
+
+.mid {
+  display: flex;
+  margin-top:-1rem;
+  /* align-items: center; */
+  /* justify-content: center; */
+  /* padding-top:-0.5em; */
+  /* padding-bottom: 1em; */
+  float:right
+
+}
+
+
+/* Switch starts here */
+.rocker {
+  display: inline-block;
+  position: relative;
+  /*
+  SIZE OF SWITCH
+  ==============
+  All sizes are in em - therefore
+  changing the font-size here
+  will change the size of the switch.
+  See .rocker-small below as example.
+  */
+  font-size: 0.8em;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  color: #888;
+  width: 7em;
+  height: 4em;
+  overflow: hidden;
+  border-bottom: 0.5em solid #eee;
+}
+
+.rocker::before {
+  content: "";
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #999;
+  border: 0.5em solid #eee;
+  border-bottom: 0;
+}
+
+.rocker input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-left,
+.switch-right {
+  cursor: pointer;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5em;
+  width: 3em;
+  transition: 0.2s;
+}
+
+.switch-left {
+  height: 2.4em;
+  width: 2.75em;
+  left: 0.85em;
+  bottom: 0.4em;
+  background-color: #ddd;
+  transform: rotate(15deg) skewX(15deg);
+}
+
+.switch-right {
+  right: 0.5em;
+  bottom: 0;
+  background-color: #bd5757;
+  color: #fff;
+}
+
+.switch-left::before,
+.switch-right::before {
+  content: "";
+  position: absolute;
+  width: 0.4em;
+  height: 2.45em;
+  bottom: -0.45em;
+  background-color: #ccc;
+  transform: skewY(-65deg);
+}
+
+.switch-left::before {
+  left: -0.4em;
+}
+
+.switch-right::before {
+  right: -0.375em;
+  background-color: transparent;
+  transform: skewY(65deg);
+}
+
+input:checked + .switch-left {
+  background-color: #0084d0;
+  color: #fff;
+  bottom: 0px;
+  left: 0.5em;
+  height: 2.5em;
+  width: 3em;
+  transform: rotate(0deg) skewX(0deg);
+}
+
+input:checked + .switch-left::before {
+  background-color: transparent;
+  width: 3.0833em;
+}
+
+input:checked + .switch-left + .switch-right {
+  background-color: #ddd;
+  color: #888;
+  bottom: 0.4em;
+  right: 0.8em;
+  height: 2.4em;
+  width: 2.75em;
+  transform: rotate(-15deg) skewX(-15deg);
+}
+
+input:checked + .switch-left + .switch-right::before {
+  background-color: #ccc;
+}
+
+/* Keyboard Users */
+input:focus + .switch-left {
+  color: #333;
+}
+
+input:checked:focus + .switch-left {
+  color: #fff;
+}
+
+input:focus + .switch-left + .switch-right {
+  color: #fff;
+}
+
+input:checked:focus + .switch-left + .switch-right {
+  color: #333;
+}
+
 
 </style>

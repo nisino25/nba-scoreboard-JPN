@@ -1,5 +1,6 @@
 <template>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 
   <div class="menu-tool">
     <!-- <i class="fa fa-gear fa-spin" style="font-size:24px; cursor:pointer;"></i> -->
@@ -12,7 +13,11 @@
         <span class="switch-right" @click="showingScore = !showingScore">Off</span>
       </label>
     </div>
+
+    
    
+
+
 
   </div>
 
@@ -20,9 +25,16 @@
   
   
 
-  <div style="text-align:center; display:flex; margin-bottom:1rem; margin-top:2rem;">
+  <div class="view-counter" style="left:0;margin-left: 50px">
+    <i class="far fa-eye" id="togglePassword" style="margin-right: 7.5px; cursor: pointer;"></i>
+    <vue3-autocounter class="counter" ref='counter' :startAmount='0'  suffix=' Views' :endAmount="userNum" :duration='1.5'  separator=',' :autoinit='true' />
+  </div>
+  
+  <div style="text-align:center; display:flex; margin-bottom:1rem; margin-top:0.5rem;">
     <input type="date" v-model="beforeEdit" style="margin-left:5%;">
   </div>
+
+  
     
   <br>
   <div style="text-align:center" class='select-date'>
@@ -34,6 +46,7 @@
     
 
   </div>
+  
   
   <br>
 
@@ -99,6 +112,8 @@
 // import ToggleButton from 'vue-js-toggle-button'
  
 // Vue.use(ToggleButton)
+import Vue3autocounter from 'vue3-autocounter';
+import db from "./firebase.js"
 
 
 export default {
@@ -108,6 +123,9 @@ export default {
   
 
   name: 'App',
+  components: {
+    'vue3-autocounter': Vue3autocounter
+  },
   data(){
     return{
       showingScore: false,
@@ -142,6 +160,9 @@ export default {
 
 
       hasFailed: false,
+
+      fireData:[],
+      userNum: 0,
 
 
 
@@ -412,7 +433,18 @@ export default {
   },
 
   created() {
-    this.interval = setInterval(() => this.checkUpdate(), 30000);  
+    this.interval = setInterval(() => this.checkUpdate(), 30000); 
+    
+    db.collection("nba-jpn-scoreboard")
+     .get()
+     .then((querySnapshot) => {
+       querySnapshot.forEach((doc) => {
+         console.log(`${doc.id} => ${doc.data().TotalNum}`)
+         this.fireData.push(doc.data().TotalNum)
+         this.userNum = doc.data().TotalNum + 1
+
+       })
+     })
   },
 
   mounted(){
@@ -446,7 +478,16 @@ export default {
     beforeEdit: function(){
       this.getScores('special')
       console.log(this.beforeEdit)
-    }
+    },
+    userNum(){
+      console.log('just ogt data')
+        const ref = db.collection('nba-jpn-scoreboard')
+        ref.doc('Fy07iVqDzbObMgipvsBL').update({
+          TotalNum: this.userNum
+          // TotalNum: 200 
+        })
+      console.log('Sent data now')
+    },
   },
 
 }

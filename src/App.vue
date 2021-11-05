@@ -332,7 +332,7 @@ export default {
 
           }else if(!this.gameData.games[i].isGameActivated && this.gameData.games[i].period.current > 4){
             this.gameData.games[i].colorOfTheString = 'color: red'
-            this.gameData.games[i].gameStatus = String(this.gameData.games[i].period.current -4) + ' OT Final'
+            this.gameData.games[i].gameStatus ='Final'
 
           }else{
             // console.log('missed')

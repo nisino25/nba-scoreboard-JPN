@@ -1,5 +1,5 @@
 <template>
-<html style="background-color: #121212 ; color:white">
+<html style=""  :style="{ height: pageHeight}">
 
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -14,12 +14,25 @@
         <!-- <i class="fa fa-gear fa-spin" style="font-size:24px; cursor:pointer;"></i> -->
         <!-- <span style="">Showing Score</span> -->
 
-        <div class="mid" >
+        <!-- <div class="mid" >
           <label class="rocker" @click="showingScore = !showingScore">
             <input type="checkbox" unchecked>
             <span class="switch-left" @click="showingScore = !showingScore">On</span>
             <span class="switch-right" @click="showingScore = !showingScore">Off</span>
-          </label>
+          </label> 
+        </div> -->
+        <div style="float:right; margin-right:5px; ">
+          <div @click='showingScore = true'>
+            <label for="" style="margin-right: 6px">ON</label>
+            <input type="radio" v-model="showingScore" v-bind:value="true">
+          </div>
+
+          <div @click='showingScore = false'>
+            <label for="">OFF</label>
+            <input type="radio" v-model="showingScore" v-bind:value="false">
+          </div>
+
+          
         </div>
 
         
@@ -60,7 +73,7 @@
 
 
       <div v-if="gameData && !(isFetchingData) && !(hasFailed) && showingScore">
-        <div style="text-align:center">Showing {{showingDate}} result  </div><br>
+        <div style="text-align:center; ">Showing {{showingDate}} result  </div><br>
         <div v-for="(game, i) in gameData.games" :key="i" style="text-align:center">
           <img :src="game.hTeam.linkName" alt="" class="teamLogo">
           <strong>{{game.hTeam.triCode}}</strong>&nbsp; &nbsp;
@@ -428,6 +441,8 @@ export default {
         this.isFetchingData = false;
       }
 
+      this.getPageHight()
+
     
      
       // console.log(this.gameData.games.length)
@@ -450,9 +465,13 @@ export default {
         return ''
       }
     },
+    getPageHight(){
+      this.pageHeight = document.querySelector('HTML').scrollHeight + 25 + 'px'
+    },
   },
 
   created() {
+    this.getPageHight()
 
     
 
@@ -526,9 +545,12 @@ export default {
 <style>
 html{
   top: 0;
-  height: 1500px;
+  /* height: 1500px; */
   width: 100%;
   margin-top: 0px;
+  background-color: #121212 ;
+  color: #F5F5F5;
+  
 }
 
 .teamLogo{

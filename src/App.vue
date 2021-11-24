@@ -1,138 +1,141 @@
 <template>
 <html style=""  :style="{ height: pageHeight}">
+    <div style="margin-top:10px">
 
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 
-  <div class="wrapper">
+    <div class="wrapper">
 
-    <div class="light-mode" v-if="!darkMode"></div>
+      <div class="light-mode" v-if="!darkMode"></div>
 
-    <div class="dark-mode" v-else style="">
-      <div class="menu-tool">
-        <!-- <i class="fa fa-gear fa-spin" style="font-size:24px; cursor:pointer;"></i> -->
-        <!-- <span style="">Showing Score</span> -->
+      <div class="dark-mode" v-else style="">
+        <div class="menu-tool">
+          <!-- <i class="fa fa-gear fa-spin" style="font-size:24px; cursor:pointer;"></i> -->
+          <!-- <span style="">Showing Score</span> -->
 
-        <!-- <div class="mid" >
-          <label class="rocker" @click="showingScore = !showingScore">
-            <input type="checkbox" unchecked>
-            <span class="switch-left" @click="showingScore = !showingScore">On</span>
-            <span class="switch-right" @click="showingScore = !showingScore">Off</span>
-          </label> 
-        </div> -->
-        <div style="float:right; margin-right:5px; ">
-          <div @click='showingScore = true'>
-            <label for="" style="margin-right: 6px">ON</label>
-            <input type="radio" v-model="showingScore" v-bind:value="true">
+          <!-- <div class="mid" >
+            <label class="rocker" @click="showingScore = !showingScore">
+              <input type="checkbox" unchecked>
+              <span class="switch-left" @click="showingScore = !showingScore">On</span>
+              <span class="switch-right" @click="showingScore = !showingScore">Off</span>
+            </label> 
+          </div> -->
+          <div style="float:right; margin-right:5px; ">
+            <div @click='showingScore = true'>
+              <label for="" style="margin-right: 6px">ON</label>
+              <input type="radio" v-model="showingScore" v-bind:value="true">
+            </div>
+
+            <div @click='showingScore = false'>
+              <label for="">OFF</label>
+              <input type="radio" v-model="showingScore" v-bind:value="false">
+            </div>
+
+            
           </div>
 
-          <div @click='showingScore = false'>
-            <label for="">OFF</label>
-            <input type="radio" v-model="showingScore" v-bind:value="false">
+          
+        
+
+
+
+        </div>
+
+          
+        
+        
+
+        <div class="view-counter" style="left:0;margin-left: 50px">
+          <i class="far fa-eye" id="togglePassword" style="margin-right: 7.5px; cursor: pointer;"></i>
+          <vue3-autocounter class="counter" ref='counter' :startAmount='0'  suffix=' Views' :endAmount="userNum" :duration='1.5'  separator=',' :autoinit='true' />
+        </div>
+        
+        <div style="text-align:center; display:flex; margin-bottom:1rem; margin-top:0.5rem;">
+          <input type="date" v-model="beforeEdit" style="margin-left:5%;">
+        </div>
+
+        
+          
+        <br>
+        <div style="text-align:center" class='select-date'>
+          <button @click="getScores('twoDaysAgo')">{{twoDaysAgoDate}}</button>
+          <button @click="getScores('yesterday')">{{ yesterdayDate }}</button> 
+          <button @click="getScores('today')">{{todaysDate}}</button>
+          <button @click="getScores('tomorrow')">{{tomorrowsDate}}</button>
+          <button @click="getScores('afterTomorrow')">{{afterTomorrowsDate}}</button>
+          
+
+        </div>
+        
+        
+        <br>
+
+
+        <div v-if="gameData && !(isFetchingData) && !(hasFailed) && showingScore">
+          <div style="text-align:center; ">Showing {{showingDate}} result  </div><br>
+          <div v-for="(game, i) in gameData.games" :key="i" style="text-align:center">
+            <img :src="game.hTeam.linkName" alt="" class="teamLogo">
+            <strong>{{game.hTeam.triCode}}</strong>&nbsp; &nbsp;
+            <small>{{game.hTeam.score}}</small>&nbsp;
+
+            &nbsp;<small :style="game.colorOfTheString">{{game.gameStatus}}</small>&nbsp;
+            &nbsp;<small :style="game.colorOfTheString">{{game.mustWatch}}</small>&nbsp;
+
+            &nbsp;<small>{{game.vTeam.score}}</small>&nbsp;&nbsp; &nbsp; 
+            <img :src="game.vTeam.linkName" alt="" class="teamLogo">
+            <strong>{{game.vTeam.triCode}}</strong>&nbsp; 
+            
+            <hr>
+            
+
           </div>
 
           
         </div>
 
-        
-      
+        <div v-if="gameData && !(isFetchingData) && !(hasFailed) && !showingScore">
+          <div style="text-align:center">Shwoing {{showingDate}} result  </div><br>
+          <div v-for="(game, i) in gameData.games" :key="i" style="text-align:center">
+            <img :src="game.hTeam.linkName" alt="" class="teamLogo">
+            <strong>{{game.hTeam.triCode}}</strong>&nbsp; &nbsp;
+            <!-- <small>{{game.hTeam.score}}</small>&nbsp; -->
 
+            &nbsp;<small :style="game.colorOfTheString">{{game.gameStatus}}</small>&nbsp;
+            &nbsp;<small :style="game.colorOfTheString">{{game.mustWatch}}</small>&nbsp;
 
+            <!-- &nbsp;<small>{{game.vTeam.score}}</small>&nbsp;&nbsp; &nbsp;  -->
+            <img :src="game.vTeam.linkName" alt="" class="teamLogo">
+            <strong>{{game.vTeam.triCode}}</strong>&nbsp; 
+            
+            <hr>
+            
 
-      </div>
+          </div>
 
-        
-      
-      
-
-      <div class="view-counter" style="left:0;margin-left: 50px">
-        <i class="far fa-eye" id="togglePassword" style="margin-right: 7.5px; cursor: pointer;"></i>
-        <vue3-autocounter class="counter" ref='counter' :startAmount='0'  suffix=' Views' :endAmount="userNum" :duration='1.5'  separator=',' :autoinit='true' />
-      </div>
-      
-      <div style="text-align:center; display:flex; margin-bottom:1rem; margin-top:0.5rem;">
-        <input type="date" v-model="beforeEdit" style="margin-left:5%;">
-      </div>
-
-      
-        
-      <br>
-      <div style="text-align:center" class='select-date'>
-        <button @click="getScores('twoDaysAgo')">{{twoDaysAgoDate}}</button>
-        <button @click="getScores('yesterday')">{{ yesterdayDate }}</button> 
-        <button @click="getScores('today')">{{todaysDate}}</button>
-        <button @click="getScores('tomorrow')">{{tomorrowsDate}}</button>
-        <button @click="getScores('afterTomorrow')">{{afterTomorrowsDate}}</button>
-        
-
-      </div>
-      
-      
-      <br>
-
-
-      <div v-if="gameData && !(isFetchingData) && !(hasFailed) && showingScore">
-        <div style="text-align:center; ">Showing {{showingDate}} result  </div><br>
-        <div v-for="(game, i) in gameData.games" :key="i" style="text-align:center">
-          <img :src="game.hTeam.linkName" alt="" class="teamLogo">
-          <strong>{{game.hTeam.triCode}}</strong>&nbsp; &nbsp;
-          <small>{{game.hTeam.score}}</small>&nbsp;
-
-          &nbsp;<small :style="game.colorOfTheString">{{game.gameStatus}}</small>&nbsp;
-          &nbsp;<small :style="game.colorOfTheString">{{game.mustWatch}}</small>&nbsp;
-
-          &nbsp;<small>{{game.vTeam.score}}</small>&nbsp;&nbsp; &nbsp; 
-          <img :src="game.vTeam.linkName" alt="" class="teamLogo">
-          <strong>{{game.vTeam.triCode}}</strong>&nbsp; 
           
-          <hr>
-          
-
         </div>
 
-        
-      </div>
+        <div v-if="gameData &&gameData.games.length === 0 && !(isFetchingData)"><br><br><br> No Games</div>
 
-      <div v-if="gameData && !(isFetchingData) && !(hasFailed) && !showingScore">
-        <div style="text-align:center">Shwoing {{showingDate}} result  </div><br>
-        <div v-for="(game, i) in gameData.games" :key="i" style="text-align:center">
-          <img :src="game.hTeam.linkName" alt="" class="teamLogo">
-          <strong>{{game.hTeam.triCode}}</strong>&nbsp; &nbsp;
-          <!-- <small>{{game.hTeam.score}}</small>&nbsp; -->
-
-          &nbsp;<small :style="game.colorOfTheString">{{game.gameStatus}}</small>&nbsp;
-          &nbsp;<small :style="game.colorOfTheString">{{game.mustWatch}}</small>&nbsp;
-
-          <!-- &nbsp;<small>{{game.vTeam.score}}</small>&nbsp;&nbsp; &nbsp;  -->
-          <img :src="game.vTeam.linkName" alt="" class="teamLogo">
-          <strong>{{game.vTeam.triCode}}</strong>&nbsp; 
-          
-          <hr>
-          
-
+        <div v-if="isFetchingData" style="text-align:center">
+          <br><br><br>
+          <strong>Loading.....</strong>
         </div>
 
-        
-      </div>
+        <div v-if="hasFailed && !(isFetchingData)" style="text-align:center"><br><br><br>
+          Sorry the latest data you can get is 20141118
+        </div>
 
-      <div v-if="gameData &&gameData.games.length === 0 && !(isFetchingData)"><br><br><br> No Games</div>
-
-      <div v-if="isFetchingData" style="text-align:center">
-        <br><br><br>
-        <strong>Loading.....</strong>
       </div>
-
-      <div v-if="hasFailed && !(isFetchingData)" style="text-align:center"><br><br><br>
-        Sorry the latest data you can get is 20141118
-      </div>
+      
 
     </div>
     
+    
 
-  </div>
-  
-  
+    </div>
 </html>
 </template>
 
